@@ -47,8 +47,84 @@ export const getSubscriptionById = async (req, res, next) => {
         const subscription = await Subscription.findById(req.params.id);
 
         if(!subscription){
-            const error = new Error("Sbscription not found");
+            const error = new Error("Subscription not found");
             error.status = 404;
+            throw error;
+        }
+
+        res.status(200).json({ success: true, data: subscription });
+    }catch(error){
+        next(error);
+    }
+}
+
+export const updateSubscription = async (req, res, next) => {
+    try{
+        const allowedUpdates = ['name', 'price','currency', 'frequency', 'category', 'paymentMethod'];
+        const updates = {};
+
+        //Get updatable fields from request body
+        for(const key of allowedUpdates){
+            if(req.body[key] !== undefined){
+                updates[key] = req.body[key];
+            }
+        }
+
+        //check if no field are provided to update then throw error
+        if (Object.keys(updates).length === 0) {
+            const error = new Error('No valid fields provided for update.');
+            error.statusCode = 400;
+            throw error;
+        }
+
+        //check if subscription exists
+        const subscription = await Subscription.findById(req.params.id);
+
+        if(!subscription){
+            const error = new Error('Subscription not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        //update subscription
+        const updatedSubscription = await Subscription.findByIdAndUpdate(req.params.id, updates, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({ success: true, data: updatedSubscription });
+    }catch(error){
+        next(error);
+    }
+}
+
+export const deleteSubscription = async (req, res, next) => {
+    try{
+        const subscription = await Subscription.findByIdAndDelete(req.params.id);
+
+        if(!subscription){
+            const error = new Error('Subscription not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        res.status(200).json({ success: true, message: 'Subcription deleted Successfully'});
+    }catch(error){
+        next(error);
+    }
+}
+
+export const cancelSubcription = async (req, res, next) => {
+    try{
+
+        const subscription = await Subscription.findByIdAndUpdate(req.params.id, {status: 'cancelled'}, {
+            new: true,
+            runValidators: true,
+        });
+
+        if(!subscription){
+            const error = new Error('Subscription not found');
+            error.statusCode = 404;
             throw error;
         }
 

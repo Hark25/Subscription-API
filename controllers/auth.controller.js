@@ -90,4 +90,20 @@ export const signIn = async (req, res, next) => {
     }
 }
 
-export const signOut = async (req, res, next) => {}
+export const signOut = async (req, res, next) => {
+    try {
+        // Optionally: log the token for debugging
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.split(' ')[1];
+
+        console.log('Received signout request with token:', token);
+
+        // Respond that sign-out is successful
+        res.status(200).json({
+            success: true,
+            message: 'Signed out successfully. Please delete your token on the client.'
+        });
+    } catch (error) {
+        next(error);
+    }
+};

@@ -11,4 +11,3 @@ userRouter.delete('/:id', authorize, deleteUser);
 
 export default userRouter;
 
-//68478a652422e06c10683688
